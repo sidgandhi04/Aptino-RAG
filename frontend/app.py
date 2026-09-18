@@ -41,6 +41,45 @@ def load_cases():
     return {c["case_id"]: c for c in cases}
 
 
+@st.cache_resource
+def get_graph():
+    from agents.graph import create_graph
+    return create_graph()
+
+
+def _state_to_dict(raw_result):
+    """Normalize Pydantic state objects into standard dictionaries for UI rendering."""
+    if hasattr(raw_result, "model_dump"):
+        result = raw_result.model_dump()
+    elif isinstance(raw_result, dict):
+        result = dict(raw_result)
+    else:
+        result = {}
+
+    citations = []
+    for c in result.get("citations", []):
+        if hasattr(c, "model_dump"):
+            citations.append(c.model_dump())
+        elif isinstance(c, dict):
+            citations.append(c)
+        elif hasattr(c, "__dict__"):
+            citations.append(c.__dict__)
+    result["citations"] = citations
+
+    val = result.get("validation", {})
+    if hasattr(val, "model_dump"):
+        result["validation"] = val.model_dump()
+    elif hasattr(val, "__dict__"):
+        result["validation"] = val.__dict__
+    elif not isinstance(val, dict):
+        result["validation"] = {
+            "status": getattr(val, "status", "PASS"),
+            "unsupported_claims": getattr(val, "unsupported_claims", [])
+        }
+
+    return result
+
+
 def _decision_color(decision: str) -> str:
     """Return an emoji + color hint for the decision status."""
     return {
@@ -114,173 +153,150 @@ with col2:
 
     if st.button("🔍 Run AI Analysis", use_container_width=True):
         status_placeholder = st.empty()
-        status_placeholder.info("⏳ Initializing RAG pipeline…")
+        status_placeholder.info("⏳ Initializing RAG multi-agent pipeline…")
+        result = None
 
-        try:
-            # 1. Start async task (allow 60s for Render cold start)
-            response = requests.post(f"{API_URL}/analyze_async", json=case_data, timeout=60)
-            if response.status_code != 200:
-                st.error(f"❌ Backend server returned status {response.status_code}: {response.text[:300]}")
-                st.stop()
-
+        # 1. Try external API if configured
+        use_external_api = bool(os.environ.get("API_URL"))
+        if use_external_api:
             try:
-                task_id = response.json()["task_id"]
+                response = requests.post(f"{API_URL}/analyze_async", json=case_data, timeout=10)
+                if response.status_code == 200:
+                    task_id = response.json()["task_id"]
+                    consecutive_timeouts = 0
+                    while True:
+                        time.sleep(1.5)
+                        resp = requests.get(f"{API_URL}/task_status/{task_id}", timeout=10)
+                        if resp.status_code == 200:
+                            status_res = resp.json()
+                            if status_res.get("status") == "done":
+                                result = status_res.get("result")
+                                break
+                            elif status_res.get("status") == "error":
+                                st.error(f"❌ Backend error: {status_res.get('result')}")
+                                st.stop()
+                            msgs = status_res.get("messages", [])
+                            if msgs:
+                                status_placeholder.info(f"⏳ {msgs[-1]}")
+                        else:
+                            consecutive_timeouts += 1
+                            if consecutive_timeouts > 3:
+                                break
             except Exception:
-                st.error(f"❌ Invalid response from backend: {response.text[:300]}")
+                pass  # Fall through to in-process execution
+
+        # 2. In-Process Direct Execution (Unified Streamlit App mode)
+        if result is None:
+            status_placeholder.info("⏳ Executing RAG multi-agent workflow in-process…")
+            try:
+                from agents.state import AgentState, ClaimCase
+                workflow = get_graph()
+                initial_state = AgentState(case=ClaimCase(**case_data))
+                raw_result = workflow.invoke(initial_state)
+                result = _state_to_dict(raw_result)
+            except Exception as graph_err:
+                st.error(f"❌ RAG Workflow error: {graph_err}")
                 st.stop()
 
-            # 2. Resilient status polling
-            result = None
-            consecutive_timeouts = 0
-            while True:
-                time.sleep(1.5)
-                try:
-                    resp = requests.get(f"{API_URL}/task_status/{task_id}", timeout=30)
-                    if resp.status_code != 200:
-                        consecutive_timeouts += 1
-                        if consecutive_timeouts > 5:
-                            st.error(f"❌ Backend server error ({resp.status_code}): {resp.text[:200]}")
-                            st.stop()
-                        status_placeholder.info(f"⏳ Waiting for cloud backend (status {resp.status_code})…")
-                        continue
-                    status_res = resp.json()
-                    consecutive_timeouts = 0
-                except (requests.exceptions.RequestException, ValueError, json.JSONDecodeError):
-                    consecutive_timeouts += 1
-                    if consecutive_timeouts > 5:
-                        st.error("❌ Backend API response unreadable. Render service may be restarting or cold booting.")
-                        st.stop()
-                    status_placeholder.info("⏳ Retrying connection to cloud backend…")
-                    continue
+        status_placeholder.empty()
 
-                if status_res.get("status") == "done":
-                    result = status_res.get("result")
-                    break
-                elif status_res.get("status") == "error":
-                    st.error(f"❌ Backend error: {status_res.get('result')}")
-                    st.stop()
+        # ── Decision display ────────────────────────
+        decision = result.get("decision", "PENDING")
+        confidence = result.get("confidence", 0.0)
+        icon = _decision_color(decision)
 
-                msgs = status_res.get("messages", [])
-                if msgs:
-                    latest = msgs[-1]
-                    if "Rate Limit" in latest:
-                        status_placeholder.warning(f"⏳ {latest}")
-                    else:
-                        status_placeholder.info(f"⏳ {latest}")
-                else:
-                    status_placeholder.info("⏳ Analyzing claim via RAG pipeline…")
-
-            status_placeholder.empty()
-
-            # ── Decision display ────────────────────────
-            decision = result.get("decision", "PENDING")
-            confidence = result.get("confidence", 0.0)
-            icon = _decision_color(decision)
-
-            # Abstention banner
-            if decision == "NEEDS_REVIEW":
-                st.warning(
-                    "⚠️ **System Abstained — Insufficient Evidence**\n\n"
-                    "The system could not reach a confident decision because required "
-                    "evidence or policy support is missing. A human reviewer should "
-                    "investigate the items listed under *Missing Evidence* below.",
-                    icon="⚠️",
-                )
-
-            st.metric(
-                label="Decision",
-                value=f"{icon} {decision}",
-                delta=f"Confidence: {confidence:.0%}",
+        # Abstention banner
+        if decision == "NEEDS_REVIEW":
+            st.warning(
+                "⚠️ **System Abstained — Insufficient Evidence**\n\n"
+                "The system could not reach a confident decision because required "
+                "evidence or policy support is missing. A human reviewer should "
+                "investigate the items listed under *Missing Evidence* below.",
+                icon="⚠️",
             )
 
-            # Key Findings
-            st.markdown("### 📋 Key Findings")
-            findings = result.get("key_findings", [])
-            if findings:
-                for f in findings:
-                    st.markdown(f"- {f}")
-            else:
-                st.caption("No key findings reported.")
+        st.metric(
+            label="Decision",
+            value=f"{icon} {decision}",
+            delta=f"Confidence: {confidence:.0%}",
+        )
 
-            # Applicable Limits
-            st.markdown("### 📏 Applicable Limits")
-            limits = result.get("applicable_limits", [])
-            if limits:
-                for lim in limits:
-                    st.markdown(f"- {lim}")
-            else:
-                st.caption("No applicable limits identified.")
+        # Key Findings
+        st.markdown("### 📋 Key Findings")
+        findings = result.get("key_findings", [])
+        if findings:
+            for f in findings:
+                st.markdown(f"- {f}")
+        else:
+            st.caption("No key findings reported.")
 
-            # Missing Evidence (always shown)
-            st.markdown("### 🔍 Missing Evidence")
-            missing = result.get("missing_evidence", [])
-            if missing:
-                for me in missing:
-                    st.warning(me)
-            else:
-                st.success("No missing evidence — all required information is present.")
+        # Applicable Limits
+        st.markdown("### 📏 Applicable Limits")
+        limits = result.get("applicable_limits", [])
+        if limits:
+            for lim in limits:
+                st.markdown(f"- {lim}")
+        else:
+            st.caption("No applicable limits identified.")
 
-            # Citations
-            st.markdown("### 📖 Policy Citations")
-            citations = result.get("citations", [])
-            if citations:
-                for cit in citations:
-                    with st.expander(
-                        f"Page {cit.get('page', '?')} · {cit.get('section', 'Unknown section')}"
-                    ):
-                        st.markdown(f"**Claim:** {cit['claim']}")
-                        st.markdown(f"**Source:** {cit.get('source', 'policy.pdf')}")
-                        st.caption(f"Chunk ID: {cit.get('chunk_id', '-')}")
-            else:
-                st.caption("No citations provided.")
+        # Missing Evidence (always shown)
+        st.markdown("### 🔍 Missing Evidence")
+        missing = result.get("missing_evidence", [])
+        if missing:
+            for me in missing:
+                st.warning(me)
+        else:
+            st.success("No missing evidence — all required information is present.")
 
-            # Validation
-            st.markdown("### ✅ Validation Critic")
-            val = result.get("validation", {})
-            val_status = val.get("status", "PENDING")
-            if val_status == "PASS":
-                st.success(f"Validation: **{val_status}** — all claims are evidence-grounded.")
-            else:
-                st.error(f"Validation: **{val_status}**")
-                for uc in val.get("unsupported_claims", []):
-                    st.error(f"  ↳ {uc}")
+        # Citations
+        st.markdown("### 📖 Policy Citations")
+        citations = result.get("citations", [])
+        if citations:
+            for cit in citations:
+                with st.expander(
+                    f"Page {cit.get('page', '?')} · {cit.get('section', 'Unknown section')}"
+                ):
+                    st.markdown(f"**Claim:** {cit['claim']}")
+                    st.markdown(f"**Source:** {cit.get('source', 'policy.pdf')}")
+                    st.caption(f"Chunk ID: {cit.get('chunk_id', '-')}")
+        else:
+            st.caption("No citations provided.")
 
-            # Execution Trace with timing
-            st.markdown("### 🕐 Execution Trace")
-            timings = result.get("timings", {})
-            trace = result.get("trace", [])
+        # Validation
+        st.markdown("### ✅ Validation Critic")
+        val = result.get("validation", {})
+        val_status = val.get("status", "PENDING")
+        if val_status == "PASS":
+            st.success(f"Validation: **{val_status}** — all claims are evidence-grounded.")
+        else:
+            st.error(f"Validation: **{val_status}**")
+            for uc in val.get("unsupported_claims", []):
+                st.error(f"  ↳ {uc}")
 
-            if trace:
-                trace_rows = []
-                for entry in trace:
-                    # Parse agent name from trace string  (format: "Agent Name: action")
-                    parts = entry.split(":", 1)
-                    agent_name = parts[0].strip() if len(parts) > 1 else "System"
-                    action = parts[1].strip() if len(parts) > 1 else entry
-                    # Find timing for this agent
-                    agent_key = agent_name.lower().replace(" ", "_")
-                    elapsed = timings.get(agent_key, None)
-                    elapsed_str = f"{elapsed:.2f}s" if elapsed is not None else "—"
-                    trace_rows.append({
-                        "Agent": agent_name,
-                        "Action": action,
-                        "Duration": elapsed_str,
-                    })
+        # Execution Trace with timing
+        st.markdown("### 🕐 Execution Trace")
+        timings = result.get("timings", {})
+        trace = result.get("trace", [])
 
-                st.table(trace_rows)
+        if trace:
+            trace_rows = []
+            for entry in trace:
+                parts = entry.split(":", 1)
+                agent_name = parts[0].strip() if len(parts) > 1 else "System"
+                action = parts[1].strip() if len(parts) > 1 else entry
+                agent_key = agent_name.lower().replace(" ", "_")
+                elapsed = timings.get(agent_key, None)
+                elapsed_str = f"{elapsed:.2f}s" if elapsed is not None else "—"
+                trace_rows.append({
+                    "Agent": agent_name,
+                    "Action": action,
+                    "Duration": elapsed_str,
+                })
 
-                total_time = sum(timings.values()) if timings else 0
-                if total_time > 0:
-                    st.caption(f"Total pipeline time: **{total_time:.2f}s**")
-            else:
-                st.caption("No trace data available.")
+            st.table(trace_rows)
 
-        except requests.exceptions.ConnectionError:
-            st.error(
-                "❌ Could not connect to the backend API. "
-                f"Is the server running at `{API_URL}`?\n\n"
-                "Please ensure the backend API is running (`python -m uvicorn api.main:app --port 8000`)."
-            )
-        except Exception as e:
-            st.error(f"❌ Unexpected error: {e}")
-            st.stop()
+            total_time = sum(timings.values()) if timings else 0
+            if total_time > 0:
+                st.caption(f"Total pipeline time: **{total_time:.2f}s**")
+        else:
+            st.caption("No trace data available.")
