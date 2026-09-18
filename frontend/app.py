@@ -120,10 +120,14 @@ with col2:
             # 1. Start async task (allow 60s for Render cold start)
             response = requests.post(f"{API_URL}/analyze_async", json=case_data, timeout=60)
             if response.status_code != 200:
-                st.error(f"Error {response.status_code}: {response.text}")
+                st.error(f"❌ Backend server returned status {response.status_code}: {response.text[:300]}")
                 st.stop()
 
-            task_id = response.json()["task_id"]
+            try:
+                task_id = response.json()["task_id"]
+            except Exception:
+                st.error(f"❌ Invalid response from backend: {response.text[:300]}")
+                st.stop()
 
             # 2. Resilient status polling
             result = None
@@ -131,21 +135,29 @@ with col2:
             while True:
                 time.sleep(1.5)
                 try:
-                    status_res = requests.get(f"{API_URL}/task_status/{task_id}", timeout=30).json()
+                    resp = requests.get(f"{API_URL}/task_status/{task_id}", timeout=30)
+                    if resp.status_code != 200:
+                        consecutive_timeouts += 1
+                        if consecutive_timeouts > 5:
+                            st.error(f"❌ Backend server error ({resp.status_code}): {resp.text[:200]}")
+                            st.stop()
+                        status_placeholder.info(f"⏳ Waiting for cloud backend (status {resp.status_code})…")
+                        continue
+                    status_res = resp.json()
                     consecutive_timeouts = 0
-                except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
+                except (requests.exceptions.RequestException, ValueError, json.JSONDecodeError):
                     consecutive_timeouts += 1
                     if consecutive_timeouts > 5:
-                        st.error("❌ Backend API timed out. Render may be experiencing high latency or cold starting. Please try again.")
+                        st.error("❌ Backend API response unreadable. Render service may be restarting or cold booting.")
                         st.stop()
-                    status_placeholder.info("⏳ Communicating with cloud backend...")
+                    status_placeholder.info("⏳ Retrying connection to cloud backend…")
                     continue
 
-                if status_res["status"] == "done":
-                    result = status_res["result"]
+                if status_res.get("status") == "done":
+                    result = status_res.get("result")
                     break
-                elif status_res["status"] == "error":
-                    st.error(f"❌ Backend error: {status_res['result']}")
+                elif status_res.get("status") == "error":
+                    st.error(f"❌ Backend error: {status_res.get('result')}")
                     st.stop()
 
                 msgs = status_res.get("messages", [])
