@@ -52,41 +52,6 @@ def _decision_color(decision: str) -> str:
     }.get(decision, "⬜")
 
 
-def _state_to_dict(raw_result):
-    """Normalize Pydantic state objects into standard dictionaries for UI rendering."""
-    if hasattr(raw_result, "model_dump"):
-        result = raw_result.model_dump()
-    elif isinstance(raw_result, dict):
-        result = dict(raw_result)
-    else:
-        result = {}
-
-    # Normalize citations list
-    citations = []
-    for c in result.get("citations", []):
-        if hasattr(c, "model_dump"):
-            citations.append(c.model_dump())
-        elif isinstance(c, dict):
-            citations.append(c)
-        elif hasattr(c, "__dict__"):
-            citations.append(c.__dict__)
-    result["citations"] = citations
-
-    # Normalize validation object
-    val = result.get("validation", {})
-    if hasattr(val, "model_dump"):
-        result["validation"] = val.model_dump()
-    elif hasattr(val, "__dict__"):
-        result["validation"] = val.__dict__
-    elif not isinstance(val, dict):
-        result["validation"] = {
-            "status": getattr(val, "status", "PASS"),
-            "unsupported_claims": getattr(val, "unsupported_claims", [])
-        }
-
-    return result
-
-
 # ── Sidebar: Case selection / upload / paste ─────────────────
 st.sidebar.header("Claim Case Input")
 input_mode = st.sidebar.radio(
@@ -288,18 +253,12 @@ with col2:
             else:
                 st.caption("No trace data available.")
 
-        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
-            status_placeholder.info("⏳ Executing RAG workflow in-process…")
-            try:
-                from agents.graph import create_graph
-                from agents.state import AgentState, ClaimCase
-                workflow = create_graph()
-                initial_state = AgentState(case=ClaimCase(**case_data))
-                raw_result = workflow.invoke(initial_state)
-                result = _state_to_dict(raw_result)
-            except Exception as graph_err:
-                st.error(f"❌ Workflow execution error: {graph_err}")
-                st.stop()
+        except requests.exceptions.ConnectionError:
+            st.error(
+                "❌ Could not connect to the backend API. "
+                f"Is the server running at `{API_URL}`?\n\n"
+                "Please ensure the backend API is running (`python -m uvicorn api.main:app --port 8000`)."
+            )
         except Exception as e:
             st.error(f"❌ Unexpected error: {e}")
             st.stop()
