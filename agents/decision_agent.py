@@ -170,10 +170,13 @@ Respond with a raw JSON object ONLY:
             if state.decision != "NEEDS_REVIEW" and not state.citations:
                 state.decision = "NEEDS_REVIEW"
 
-        except Exception as error:
-            state.trace.append(f"Decision Agent: Error - {error}")
+        except (json.JSONDecodeError, TypeError, KeyError) as parse_err:
+            state.trace.append(f"Decision Agent: Output Parsing Error - {parse_err}")
             state.decision = "NEEDS_REVIEW"
             state.confidence = 0.0
+        except Exception as error:
+            state.trace.append(f"Decision Agent: API Error - {error}")
+            raise error
 
         state.trace.append(
             f"Decision Agent: Decision={state.decision}, Confidence={state.confidence:.2f}, "

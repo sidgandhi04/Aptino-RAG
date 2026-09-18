@@ -93,10 +93,13 @@ Respond with a raw JSON object ONLY:
             new_missing = parsed.get("missing_evidence", [])
             if new_missing:
                 state.missing_evidence = list(set(state.missing_evidence + new_missing))
-        except Exception as e:
-            state.trace.append(f"Coverage Agent: Error — {e}")
+        except (json.JSONDecodeError, TypeError, KeyError) as parse_err:
+            state.trace.append(f"Coverage Agent: Parsing Error — {parse_err}")
             state.coverage_findings = ["Evaluated policy clauses for coverage, waiting periods, and limits."]
             state.applicable_limits = []
+        except Exception as e:
+            state.trace.append(f"Coverage Agent: API Error — {e}")
+            raise e
 
         state.trace.append(
             f"Coverage Agent: Evaluated coverage, found {len(state.coverage_findings)} findings and {len(state.applicable_limits)} limits."

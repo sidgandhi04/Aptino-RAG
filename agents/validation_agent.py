@@ -72,9 +72,12 @@ Respond with a raw JSON object:
                 status=parsed.get("status", "PASS"),
                 unsupported_claims=parsed.get("unsupported_claims", [])
             )
-        except Exception as e:
-            state.trace.append(f"Validation Agent: Error — {e}")
+        except (json.JSONDecodeError, TypeError, KeyError) as parse_err:
+            state.trace.append(f"Validation Agent: Parsing Error — {parse_err}")
             state.validation = ValidationResult(status="PASS", unsupported_claims=[])
+        except Exception as e:
+            state.trace.append(f"Validation Agent: API Error — {e}")
+            raise e
 
         state.trace.append(
             f"Validation Agent: Result={state.validation.status}, Attempt {state.validation_attempts}/{self.MAX_ATTEMPTS}."

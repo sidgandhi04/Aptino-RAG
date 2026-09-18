@@ -47,7 +47,7 @@ def invoke_with_retry(chain, inputs, task_id="", max_retries=10):
                         wait_time = float(match_min.group(1)) * 60.0 + float(match_min.group(2)) + 2.0
                     else:
                         wait_time = (attempt + 1) * 7.0
-                if wait_time > 30.0:
+                if wait_time > 180.0:
                     mins = int(wait_time / 60) if wait_time >= 60 else 1
                     raise RuntimeError(f"Groq API quota/rate limit exhausted (reset in ~{mins}m). Please try again later or provide a fresh GROQ_API_KEY.")
 
