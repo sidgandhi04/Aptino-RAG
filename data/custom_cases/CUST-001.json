@@ -1,0 +1,38 @@
+{
+  "case_id": "CUST-001",
+  "policy_id": "USGIC-CSC-2017-2018",
+  "policy_start_date": "2025-01-01",
+  "claim_date": "2026-03-14",
+  "sum_insured_inr": 500000,
+  "continuous_coverage_months": 14,
+  "prior_insurer_continuous_years": 0,
+  "patient": {
+    "age": 45
+  },
+  "hospital": {
+    "name": "Test Hosp",
+    "network_provider": true
+  },
+  "treatment": {
+    "type": "inpatient",
+    "admission_hours": 96,
+    "diagnosis": "Kidney Failure requiring regular dialysis",
+    "procedure": "Renal Dialysis",
+    "pre_existing": false,
+    "experimental": false
+  },
+  "expenses_inr": {
+    "room": 10000,
+    "doctor_fees": 10000,
+    "medicines_diagnostics": 20000,
+    "pre_hospitalization": 0,
+    "post_hospitalization": 0,
+    "ambulance": 0
+  },
+  "documents": [
+    "claim_form",
+    "discharge_summary",
+    "itemized_bill"
+  ],
+  "task": "Test Case 1: 1-year waiting period changes outcome for Dialysis. Should be NOT_ADMISSIBLE."
+}

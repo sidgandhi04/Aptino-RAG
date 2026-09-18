@@ -1,0 +1,17 @@
+fastapi
+uvicorn
+pydantic
+streamlit
+langgraph
+langchain-core
+langchain-groq
+groq
+sentence-transformers==2.7.0
+torch==2.5.1
+transformers==4.41.2
+numpy<2.0
+rank_bm25
+PyMuPDF
+pytest
+python-dotenv
+requests

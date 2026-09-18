@@ -1,0 +1,41 @@
+{
+  "case_id": "CUST-004",
+  "policy_id": "USGIC-CSC-2017-2018",
+  "policy_start_date": "2020-01-01",
+  "claim_date": "2026-03-14",
+  "sum_insured_inr": 500000,
+  "continuous_coverage_months": 74,
+  "prior_insurer_continuous_years": 0,
+  "patient": {
+    "age": 30
+  },
+  "hospital": {
+    "name": "Test Hosp",
+    "network_provider": false
+  },
+  "treatment": {
+    "type": "inpatient",
+    "admission_hours": 96,
+    "diagnosis": "Viral fever",
+    "procedure": "Medical management",
+    "pre_existing": false,
+    "experimental": false
+  },
+  "expenses_inr": {
+    "room": 10000,
+    "doctor_fees": 10000,
+    "medicines_diagnostics": 20000,
+    "pre_hospitalization": 0,
+    "post_hospitalization": 0,
+    "ambulance": 0
+  },
+  "documents": [
+    "claim_form",
+    "itemized_bill"
+  ],
+  "evidence_context": {
+    "hospital_registered": null,
+    "hospital_minimum_criteria_documented": false
+  },
+  "task": "Test Case 4: Insufficient evidence. Hospital registration is unknown and minimum criteria not documented. NEEDS_REVIEW."
+}

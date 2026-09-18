@@ -1,0 +1,39 @@
+{
+  "case_id": "CUST-002",
+  "policy_id": "USGIC-CSC-2017-2018",
+  "policy_start_date": "2020-01-01",
+  "claim_date": "2026-03-14",
+  "sum_insured_inr": 500000,
+  "continuous_coverage_months": 74,
+  "prior_insurer_continuous_years": 0,
+  "patient": {
+    "age": 55
+  },
+  "hospital": {
+    "name": "Test Hosp",
+    "network_provider": true
+  },
+  "treatment": {
+    "type": "domiciliary",
+    "admission_hours": 0,
+    "diagnosis": "Condition requiring home care",
+    "procedure": "Home Care",
+    "pre_existing": false,
+    "experimental": false,
+    "hospital_room_unavailable": true
+  },
+  "expenses_inr": {
+    "room": 0,
+    "doctor_fees": 50000,
+    "medicines_diagnostics": 100000,
+    "pre_hospitalization": 0,
+    "post_hospitalization": 0,
+    "ambulance": 0
+  },
+  "documents": [
+    "claim_form",
+    "doctor_certificate",
+    "itemized_bill"
+  ],
+  "task": "Test Case 2: Multi-section synthesis + Sub-limit (Domiciliary is 20% of BSI). Claim is 150k, limit is 100k. ADMISSIBLE_WITH_LIMITS / PARTIALLY_ADMISSIBLE."
+}

@@ -1,0 +1,298 @@
+{
+  "summary": {
+    "total": 17,
+    "correct": 17,
+    "accuracy_pct": 100.0
+  },
+  "results": [
+    {
+      "case_id": "PUB-001",
+      "expected": "ADMISSIBLE_WITH_LIMITS",
+      "actual": "ADMISSIBLE_WITH_LIMITS",
+      "correct": true,
+      "confidence": 0.95,
+      "elapsed_seconds": 18.2,
+      "key_findings": [
+        "Room expense of ₹30,000 exceeds sub-limit of 1% Basic Sum Insured per day (₹5,000/day for 4 days = ₹20,000 payable) as per page 7 room limit clause (chunk_6_0).",
+        "Ambulance charge of ₹1,200 exceeds maximum policy cap of ₹1,000 per claim as per page 10 ambulance clause (chunk_10_0).",
+        "Medicines & diagnostics (₹90,000), doctor fees (₹30,000), pre-hospitalization (₹5,000) and post-hospitalization (₹7,000) are covered within category limits."
+      ],
+      "missing_evidence": [],
+      "num_citations": 2,
+      "num_evidence_chunks": 12,
+      "validation_status": "PASS"
+    },
+    {
+      "case_id": "PUB-002",
+      "expected": "NOT_ADMISSIBLE",
+      "actual": "NOT_ADMISSIBLE",
+      "correct": true,
+      "confidence": 0.95,
+      "elapsed_seconds": 16.5,
+      "key_findings": [
+        "Policy start date is 2026-01-01 and claim date is 2026-01-20 (19 days elapsed).",
+        "Illness (Viral fever) was incurred within the initial 30-day waiting period from policy inception (chunk_9_0).",
+        "No continuous prior coverage or portability credit is established."
+      ],
+      "missing_evidence": [],
+      "num_citations": 1,
+      "num_evidence_chunks": 11,
+      "validation_status": "PASS"
+    },
+    {
+      "case_id": "PUB-003",
+      "expected": "NOT_ADMISSIBLE",
+      "actual": "NOT_ADMISSIBLE",
+      "correct": true,
+      "confidence": 0.95,
+      "elapsed_seconds": 17.8,
+      "key_findings": [
+        "Pre-existing thyroid disorder treatment is excluded until 48 months of continuous coverage elapse (chunk_9_0).",
+        "Patient has only 27 months of continuous coverage, which is less than the required 48 months."
+      ],
+      "missing_evidence": [],
+      "num_citations": 1,
+      "num_evidence_chunks": 12,
+      "validation_status": "PASS"
+    },
+    {
+      "case_id": "PUB-004",
+      "expected": "ADMISSIBLE_WITH_LIMITS",
+      "actual": "ADMISSIBLE_WITH_LIMITS",
+      "correct": true,
+      "confidence": 0.92,
+      "elapsed_seconds": 18.9,
+      "key_findings": [
+        "Domiciliary treatment is covered under Section 3.4 of the policy (chunk_8_0).",
+        "Expenses for domiciliary hospitalization are subject to a sub-limit cap of 20% of Sum Insured (₹100,000 limit on ₹105,000 total claim)."
+      ],
+      "missing_evidence": [],
+      "num_citations": 1,
+      "num_evidence_chunks": 12,
+      "validation_status": "PASS"
+    },
+    {
+      "case_id": "PUB-005",
+      "expected": "ADMISSIBLE_WITH_LIMITS",
+      "actual": "ADMISSIBLE_WITH_LIMITS",
+      "correct": true,
+      "confidence": 0.95,
+      "elapsed_seconds": 17.4,
+      "key_findings": [
+        "Day-care Cataract eye surgery is covered after 1 year waiting period (29 months continuous coverage > 12 months) as per page 9 (chunk_13_0).",
+        "Doctor fees, medicines, pre and post-hospitalization expenses are admissible subject to category sub-limits."
+      ],
+      "missing_evidence": [],
+      "num_citations": 1,
+      "num_evidence_chunks": 12,
+      "validation_status": "PASS"
+    },
+    {
+      "case_id": "PUB-006",
+      "expected": "NEEDS_REVIEW",
+      "actual": "NEEDS_REVIEW",
+      "correct": true,
+      "confidence": 0.92,
+      "elapsed_seconds": 15.1,
+      "key_findings": [
+        "Itemized bill is missing from the submitted document package.",
+        "Evidence context explicitly flags hospital registration status as unconfirmed (hospital_registered: null)."
+      ],
+      "missing_evidence": [
+        "itemized_bill",
+        "hospital_registration_status"
+      ],
+      "num_citations": 1,
+      "num_evidence_chunks": 12,
+      "validation_status": "PASS"
+    },
+    {
+      "case_id": "PUB-007",
+      "expected": "ADMISSIBLE_WITH_LIMITS",
+      "actual": "ADMISSIBLE_WITH_LIMITS",
+      "correct": true,
+      "confidence": 0.95,
+      "elapsed_seconds": 19.3,
+      "key_findings": [
+        "Cancer inpatient treatment is covered under policy scope.",
+        "Room expense of ₹80,000 is capped at 1% of Basic Sum Insured per day (₹10,000/day for 4 days = ₹40,000 payable) (chunk_6_0).",
+        "Medicines & diagnostics expense of ₹500,000 is capped at 40% of Sum Insured (₹400,000 cap) (chunk_8_0)."
+      ],
+      "missing_evidence": [],
+      "num_citations": 2,
+      "num_evidence_chunks": 12,
+      "validation_status": "PASS"
+    },
+    {
+      "case_id": "PUB-008",
+      "expected": "NOT_ADMISSIBLE",
+      "actual": "NOT_ADMISSIBLE",
+      "correct": true,
+      "confidence": 0.95,
+      "elapsed_seconds": 16.2,
+      "key_findings": [
+        "Treatment is explicitly identified as Cosmetic surgery for a cosmetic condition.",
+        "Cosmetic and aesthetic treatments are excluded under Policy Section 4 (chunk_9_0)."
+      ],
+      "missing_evidence": [],
+      "num_citations": 1,
+      "num_evidence_chunks": 11,
+      "validation_status": "PASS"
+    },
+    {
+      "case_id": "PUB-009",
+      "expected": "ADMISSIBLE_WITH_LIMITS",
+      "actual": "ADMISSIBLE_WITH_LIMITS",
+      "correct": true,
+      "confidence": 0.95,
+      "elapsed_seconds": 18.1,
+      "key_findings": [
+        "Appendicitis surgery claim is covered.",
+        "Pre-hospitalization (30 days prior) and post-hospitalization (60 days after) expenses are covered within policy time windows (chunk_8_0).",
+        "Ambulance charge of ₹800 is fully payable within ₹1,000 cap."
+      ],
+      "missing_evidence": [],
+      "num_citations": 1,
+      "num_evidence_chunks": 12,
+      "validation_status": "PASS"
+    },
+    {
+      "case_id": "PUB-010",
+      "expected": "ADMISSIBLE_WITH_LIMITS",
+      "actual": "ADMISSIBLE_WITH_LIMITS",
+      "correct": true,
+      "confidence": 0.95,
+      "elapsed_seconds": 17.9,
+      "key_findings": [
+        "Cataract eye surgery is subject to a 1-year waiting period under standard policy terms (chunk_13_0).",
+        "Patient has 8 months current coverage plus 1 year continuous prior coverage with an Indian health insurer.",
+        "Under the portability credit clause (chunk_13_0), the 1-year Cataract waiting period is waived.",
+        "Day-care surgery expenses are admissible subject to category sub-limits."
+      ],
+      "missing_evidence": [],
+      "num_citations": 1,
+      "num_evidence_chunks": 12,
+      "validation_status": "PASS"
+    },
+    {
+      "case_id": "PUB-011",
+      "expected": "NEEDS_REVIEW",
+      "actual": "NEEDS_REVIEW",
+      "correct": true,
+      "confidence": 0.92,
+      "elapsed_seconds": 14.8,
+      "key_findings": [
+        "Appendectomy claim at a non-network facility.",
+        "Evidence context explicitly indicates hospital minimum criteria documentation is false (hospital_minimum_criteria_documented: false).",
+        "Facility does not satisfy hospital definition requirements under policy definitions (chunk_0_6)."
+      ],
+      "missing_evidence": [
+        "hospital_minimum_criteria_documentation"
+      ],
+      "num_citations": 1,
+      "num_evidence_chunks": 12,
+      "validation_status": "PASS"
+    },
+    {
+      "case_id": "PUB-012",
+      "expected": "NOT_ADMISSIBLE",
+      "actual": "NOT_ADMISSIBLE",
+      "correct": true,
+      "confidence": 0.95,
+      "elapsed_seconds": 16.0,
+      "key_findings": [
+        "Treatment is explicitly specified as Experimental therapy for an Experimental condition.",
+        "Unproven and experimental treatments are excluded under Policy Section 4 definitions (chunk_0_20)."
+      ],
+      "missing_evidence": [],
+      "num_citations": 1,
+      "num_evidence_chunks": 11,
+      "validation_status": "PASS"
+    },
+    {
+      "case_id": "CUST-001",
+      "expected": "NOT_ADMISSIBLE",
+      "actual": "NOT_ADMISSIBLE",
+      "correct": true,
+      "confidence": 0.95,
+      "elapsed_seconds": 16.8,
+      "key_findings": [
+        "Renal Dialysis for kidney failure is subject to a 1-year waiting period under listed diseases (chunk_13_0).",
+        "Coverage duration is 14 months, but policy inception facts show 1-year waiting period was active during first year of cover without prior portability."
+      ],
+      "missing_evidence": [],
+      "num_citations": 1,
+      "num_evidence_chunks": 12,
+      "validation_status": "PASS"
+    },
+    {
+      "case_id": "CUST-002",
+      "expected": "ADMISSIBLE_WITH_LIMITS",
+      "actual": "ADMISSIBLE_WITH_LIMITS",
+      "correct": true,
+      "confidence": 0.92,
+      "elapsed_seconds": 18.3,
+      "key_findings": [
+        "Domiciliary home care claim of ₹150,000 is covered.",
+        "Domiciliary treatment is subject to a sub-limit cap of 20% of Sum Insured (₹100,000 cap on ₹500,000 SI)."
+      ],
+      "missing_evidence": [],
+      "num_citations": 1,
+      "num_evidence_chunks": 12,
+      "validation_status": "PASS"
+    },
+    {
+      "case_id": "CUST-003",
+      "expected": "NEEDS_REVIEW",
+      "actual": "NEEDS_REVIEW",
+      "correct": true,
+      "confidence": 0.92,
+      "elapsed_seconds": 14.5,
+      "key_findings": [
+        "Chemotherapy for Cancer diagnosis.",
+        "Histopathology report confirmed by a pathologist is missing from submitted documents."
+      ],
+      "missing_evidence": [
+        "histopathology_report"
+      ],
+      "num_citations": 1,
+      "num_evidence_chunks": 12,
+      "validation_status": "PASS"
+    },
+    {
+      "case_id": "CUST-004",
+      "expected": "NEEDS_REVIEW",
+      "actual": "NEEDS_REVIEW",
+      "correct": true,
+      "confidence": 0.92,
+      "elapsed_seconds": 14.2,
+      "key_findings": [
+        "Inpatient viral fever treatment at non-network facility.",
+        "Hospital minimum criteria documentation is unconfirmed (hospital_minimum_criteria_documented: false)."
+      ],
+      "missing_evidence": [
+        "hospital_minimum_criteria_documentation"
+      ],
+      "num_citations": 1,
+      "num_evidence_chunks": 12,
+      "validation_status": "PASS"
+    },
+    {
+      "case_id": "CUST-005",
+      "expected": "ADMISSIBLE",
+      "actual": "ADMISSIBLE",
+      "correct": true,
+      "confidence": 0.95,
+      "elapsed_seconds": 17.1,
+      "key_findings": [
+        "Inpatient viral fever treatment at network provider.",
+        "Irrelevant input attributes (patient_hair_color, hospital_cafeteria_rating) are ignored by CaseAnalysisAgent.",
+        "All expenses are within category limits and covered without deduction."
+      ],
+      "missing_evidence": [],
+      "num_citations": 1,
+      "num_evidence_chunks": 12,
+      "validation_status": "PASS"
+    }
+  ]
+}

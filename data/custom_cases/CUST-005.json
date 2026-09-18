@@ -1,0 +1,43 @@
+{
+  "case_id": "CUST-005",
+  "policy_id": "USGIC-CSC-2017-2018",
+  "policy_start_date": "2020-01-01",
+  "claim_date": "2026-03-14",
+  "sum_insured_inr": 500000,
+  "continuous_coverage_months": 74,
+  "prior_insurer_continuous_years": 0,
+  "patient": {
+    "age": 35
+  },
+  "hospital": {
+    "name": "Test Hosp",
+    "network_provider": true
+  },
+  "treatment": {
+    "type": "inpatient",
+    "admission_hours": 96,
+    "diagnosis": "Viral fever",
+    "procedure": "Medical management",
+    "pre_existing": false,
+    "experimental": false
+  },
+  "expenses_inr": {
+    "room": 5000,
+    "doctor_fees": 10000,
+    "medicines_diagnostics": 20000,
+    "pre_hospitalization": 0,
+    "post_hospitalization": 0,
+    "ambulance": 0
+  },
+  "documents": [
+    "claim_form",
+    "discharge_summary",
+    "itemized_bill"
+  ],
+  "irrelevant_attributes": {
+    "patient_hair_color": "brown",
+    "hospital_cafeteria_rating": 4.5,
+    "weather_during_admission": "sunny"
+  },
+  "task": "Test Case 5: Irrelevant input attribute. The system should ignore irrelevant_attributes and return ADMISSIBLE."
+}

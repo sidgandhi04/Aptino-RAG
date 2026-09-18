@@ -1,0 +1,19 @@
+[
+  {"case_id": "PUB-001", "expected_decision": "ADMISSIBLE_WITH_LIMITS"},
+  {"case_id": "PUB-002", "expected_decision": "NOT_ADMISSIBLE"},
+  {"case_id": "PUB-003", "expected_decision": "NOT_ADMISSIBLE"},
+  {"case_id": "PUB-004", "expected_decision": "ADMISSIBLE_WITH_LIMITS"},
+  {"case_id": "PUB-005", "expected_decision": "ADMISSIBLE_WITH_LIMITS"},
+  {"case_id": "PUB-006", "expected_decision": "NEEDS_REVIEW"},
+  {"case_id": "PUB-007", "expected_decision": "ADMISSIBLE_WITH_LIMITS"},
+  {"case_id": "PUB-008", "expected_decision": "NOT_ADMISSIBLE"},
+  {"case_id": "PUB-009", "expected_decision": "ADMISSIBLE_WITH_LIMITS"},
+  {"case_id": "PUB-010", "expected_decision": "ADMISSIBLE_WITH_LIMITS"},
+  {"case_id": "PUB-011", "expected_decision": "NEEDS_REVIEW"},
+  {"case_id": "PUB-012", "expected_decision": "NOT_ADMISSIBLE"},
+  {"case_id": "CUST-001", "expected_decision": "NOT_ADMISSIBLE"},
+  {"case_id": "CUST-002", "expected_decision": "ADMISSIBLE_WITH_LIMITS"},
+  {"case_id": "CUST-003", "expected_decision": "NEEDS_REVIEW"},
+  {"case_id": "CUST-004", "expected_decision": "NEEDS_REVIEW"},
+  {"case_id": "CUST-005", "expected_decision": "ADMISSIBLE"}
+]

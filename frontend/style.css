@@ -1,0 +1,172 @@
+/* Premium Glassmorphism Theme for Streamlit */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Global Reset & Typography */
+html, body, [class*="css"] {
+    font-family: 'Inter', sans-serif !important;
+}
+
+/* App Background (Deep Neon Space) */
+.stApp {
+    background: radial-gradient(circle at top left, #0F172A, #020617);
+    color: #E2E8F0;
+}
+
+/* Sidebar Glassmorphism */
+[data-testid="stSidebar"] {
+    background: rgba(15, 23, 42, 0.4) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Headers */
+h1, h2, h3, h4, h5, h6 {
+    color: #F8FAFC !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.02em;
+}
+
+h1 {
+    background: linear-gradient(135deg, #38BDF8 0%, #818CF8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    padding-bottom: 0.2em;
+}
+
+/* Cards & Containers (Metrics, Expanders, JSON blocks) */
+[data-testid="stMetric"], .stExpander, div[data-testid="stJson"] {
+    background: rgba(30, 41, 59, 0.4) !important;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 12px !important;
+    padding: 16px !important;
+    box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+[data-testid="stMetric"]:hover, .stExpander:hover {
+    border-color: rgba(56, 189, 248, 0.4) !important;
+    box-shadow: 0 8px 32px -4px rgba(56, 189, 248, 0.15);
+    transform: translateY(-2px);
+}
+
+/* Metric Values (e.g. Decision text) */
+[data-testid="stMetricValue"] {
+    color: #38BDF8 !important;
+    font-weight: 700 !important;
+    font-size: 1.8rem !important;
+}
+
+[data-testid="stMetricDelta"] svg {
+    fill: #34D399 !important;
+}
+[data-testid="stMetricDelta"] > div {
+    color: #34D399 !important;
+}
+
+/* Buttons (Run Analysis) */
+div.stButton > button {
+    background: linear-gradient(135deg, #0284C7 0%, #3B82F6 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 0.75rem 1.5rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.05em;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+div.stButton > button:hover {
+    transform: translateY(-2px) scale(1.02) !important;
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5) !important;
+    background: linear-gradient(135deg, #0369A1 0%, #2563EB 100%) !important;
+}
+
+div.stButton > button:active {
+    transform: translateY(0) scale(0.98) !important;
+}
+
+/* JSON Viewer Tweaks */
+div[data-testid="stJson"] {
+    padding: 0 !important;
+    overflow-x: hidden;
+}
+div[data-testid="stJson"] .string {
+    color: #A7F3D0 !important;
+}
+div[data-testid="stJson"] .number {
+    color: #FBBF24 !important;
+}
+
+/* Expander Titles */
+.st-emotion-cache-p5msec, .st-emotion-cache-1vt4ygl {
+    color: #94A3B8 !important;
+}
+
+/* Warnings and Errors */
+[data-testid="stAlert"] {
+    border-radius: 8px;
+    border-left: 4px solid;
+    background: rgba(30, 41, 59, 0.6) !important;
+    backdrop-filter: blur(8px);
+}
+
+/* Tables (Execution Trace) */
+[data-testid="stTable"] {
+    background: rgba(30, 41, 59, 0.4) !important;
+    border-radius: 12px !important;
+    overflow: hidden;
+}
+
+[data-testid="stTable"] th {
+    background: rgba(56, 189, 248, 0.15) !important;
+    color: #38BDF8 !important;
+    font-weight: 600 !important;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+[data-testid="stTable"] td {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    color: #CBD5E1 !important;
+}
+
+/* Text area (Paste JSON) */
+textarea {
+    background: rgba(15, 23, 42, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 8px !important;
+    color: #E2E8F0 !important;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
+    font-size: 0.85rem !important;
+}
+
+/* File uploader */
+[data-testid="stFileUploader"] {
+    background: rgba(30, 41, 59, 0.3) !important;
+    border: 2px dashed rgba(56, 189, 248, 0.3) !important;
+    border-radius: 12px !important;
+    padding: 16px !important;
+}
+
+[data-testid="stFileUploader"]:hover {
+    border-color: rgba(56, 189, 248, 0.6) !important;
+}
+
+/* Radio buttons in sidebar */
+[data-testid="stRadio"] label {
+    color: #94A3B8 !important;
+}
+
+/* Fade-in Animation for Content */
+.stMarkdown, [data-testid="stMetric"], .stExpander, [data-testid="stAlert"] {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
