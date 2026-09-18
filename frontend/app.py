@@ -117,19 +117,29 @@ with col2:
         status_placeholder.info("⏳ Initializing RAG pipeline…")
 
         try:
-            # 1. Start async task
-            response = requests.post(f"{API_URL}/analyze_async", json=case_data, timeout=30)
+            # 1. Start async task (allow 60s for Render cold start)
+            response = requests.post(f"{API_URL}/analyze_async", json=case_data, timeout=60)
             if response.status_code != 200:
                 st.error(f"Error {response.status_code}: {response.text}")
                 st.stop()
 
             task_id = response.json()["task_id"]
 
-            # 2. Poll for status
+            # 2. Resilient status polling
             result = None
+            consecutive_timeouts = 0
             while True:
                 time.sleep(1.5)
-                status_res = requests.get(f"{API_URL}/task_status/{task_id}", timeout=10).json()
+                try:
+                    status_res = requests.get(f"{API_URL}/task_status/{task_id}", timeout=30).json()
+                    consecutive_timeouts = 0
+                except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
+                    consecutive_timeouts += 1
+                    if consecutive_timeouts > 5:
+                        st.error("❌ Backend API timed out. Render may be experiencing high latency or cold starting. Please try again.")
+                        st.stop()
+                    status_placeholder.info("⏳ Communicating with cloud backend...")
+                    continue
 
                 if status_res["status"] == "done":
                     result = status_res["result"]
