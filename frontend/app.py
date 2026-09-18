@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Constants
-API_URL = os.environ.get("API_URL", "http://localhost:8000")
+API_URL = os.environ.get("API_URL") or getattr(st, "secrets", {}).get("API_URL", "http://localhost:8000")
 
 st.set_page_config(
     page_title="Aptino Health Claims RAG",
