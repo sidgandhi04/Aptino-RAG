@@ -1,10 +1,16 @@
-import streamlit as st
-import json
+import sys
 import os
+import json
 import requests
 import glob
 import time
+import streamlit as st
 from dotenv import load_dotenv
+
+# Ensure repository root is in sys.path for importing 'agents', 'retrieval', 'ingestion'
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
 
 load_dotenv()
 
@@ -18,7 +24,7 @@ st.set_page_config(
 )
 
 # Inject Custom CSS
-css_path = "frontend/style.css"
+css_path = os.path.join(ROOT_DIR, "frontend", "style.css")
 if os.path.exists(css_path):
     with open(css_path, "r") as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
@@ -30,11 +36,11 @@ st.title("Aptino AI — Health Insurance Claims Decision Engine")
 @st.cache_data
 def load_cases():
     cases = []
-    public_path = "Given Data/candidate_data/public_test_cases.json"
+    public_path = os.path.join(ROOT_DIR, "Given Data", "candidate_data", "public_test_cases.json")
     if os.path.exists(public_path):
         with open(public_path, "r") as f:
             cases.extend(json.load(f))
-    custom_paths = sorted(glob.glob("data/custom_cases/*.json"))
+    custom_paths = sorted(glob.glob(os.path.join(ROOT_DIR, "data", "custom_cases", "*.json")))
     for cp in custom_paths:
         with open(cp, "r") as f:
             cases.append(json.load(f))
