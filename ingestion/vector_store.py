@@ -1,8 +1,13 @@
 import os
 import pickle
-
 import numpy as np
 from rank_bm25 import BM25Okapi
+
+try:
+    import torch
+    torch.set_num_threads(1)
+except Exception:
+    pass
 
 try:
     from sentence_transformers import SentenceTransformer
@@ -12,21 +17,13 @@ except (ImportError, OSError) as error:
 
 
 class VectorStore:
-    """A small persistent cosine-similarity vector store for the policy corpus.
-
-    The policy contains only about one hundred chunks, so a persisted NumPy
-    matrix is simpler and more reliable than a native vector-database service
-    while retaining genuine dense semantic retrieval.
-    """
+    """A small persistent cosine-similarity vector store for the policy corpus."""
 
     def __init__(self, db_dir="chroma_db", embedding_model_name="sentence-transformers/all-MiniLM-L6-v2"):
         self.db_dir = db_dir
-        self.embedding_model = None
-        if SentenceTransformer:
-            try:
-                self.embedding_model = SentenceTransformer(embedding_model_name)
-            except Exception as error:
-                print(f"Warning: Dense embedding model is unavailable: {error}")
+        self.embedding_model_name = embedding_model_name
+        self._embedding_model = None
+        self._model_failed = False
 
         self.bm25 = None
         self.bm25_corpus = []
@@ -38,6 +35,16 @@ class VectorStore:
         self.dense_path = os.path.join(self.db_dir, "dense_index.pkl")
         self._load_bm25()
         self._load_dense()
+
+    @property
+    def embedding_model(self):
+        if self._embedding_model is None and not self._model_failed and SentenceTransformer:
+            try:
+                self._embedding_model = SentenceTransformer(self.embedding_model_name)
+            except Exception as error:
+                print(f"Warning: Dense embedding model is unavailable: {error}")
+                self._model_failed = True
+        return self._embedding_model
 
     def _load_bm25(self):
         if os.path.exists(self.bm25_path):
@@ -53,8 +60,6 @@ class VectorStore:
             with open(self.dense_path, "rb") as file:
                 data = pickle.load(file)
             self.dense_embeddings = np.asarray(data["embeddings"], dtype=np.float32)
-            # The dense index is authoritative for its row ordering and keeps
-            # metadata available even if a lexical index must be rebuilt.
             if not self.chunk_ids:
                 self.chunk_ids = data["chunk_ids"]
             if not self.chunk_data:
@@ -79,8 +84,7 @@ class VectorStore:
     def add_chunks(self, chunks):
         if not self.embedding_model:
             raise RuntimeError(
-                "Dense embedding model is unavailable. Install a compatible "
-                "Sentence Transformers/PyTorch runtime before indexing."
+                "Dense embedding model is unavailable."
             )
 
         self.chunk_ids = [chunk["chunk_id"] for chunk in chunks]
@@ -108,7 +112,7 @@ class VectorStore:
         if not self.embedding_model or self.dense_embeddings is None:
             return []
         if len(self.dense_embeddings) != len(self.chunk_ids):
-            raise RuntimeError("Dense index and chunk metadata are out of sync. Rebuild the index.")
+            raise RuntimeError("Dense index and chunk metadata are out of sync.")
 
         query_embedding = np.asarray(
             self.embedding_model.encode([query], normalize_embeddings=True)[0],
