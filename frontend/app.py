@@ -141,6 +141,13 @@ elif input_mode == "Paste JSON":
         except json.JSONDecodeError as e:
             st.sidebar.error(f"Invalid JSON: {e}")
 
+st.sidebar.markdown("---")
+st.sidebar.warning(
+    "⚡ **Performance & Rate Limit Notice**\n\n"
+    "Due to strict LLM API rate limits (Groq free-tier TPM/RPM), response speeds may be affected during peak evaluation. "
+    "If a rate limit is reached, the decision engine will automatically pause, wait, and retry without losing progress."
+)
+
 if case_data is None:
     st.info("Select, upload, or paste a claim case to begin.")
     st.stop()
